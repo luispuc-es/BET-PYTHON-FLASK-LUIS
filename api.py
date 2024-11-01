@@ -47,6 +47,19 @@ user_args = reqparse.RequestParser()
 user_args.add_argument('login', type=str, required=True, help="login cannot be blank")
 user_args.add_argument('email', type=str, required=True, help="E-mail cannot be blank")
 
+event_args = reqparse.RequestParser()
+event_args.add_argument('id_user', type=int, required=True, help="User id cannot be blank")
+event_args.add_argument('title', type=str, required=True, help="title id cannot be blank")
+event_args.add_argument('description', type=str, required=True, help="description id cannot be blank")
+event_args.add_argument('quota_value', type=float, required=True, help="quota_value id cannot be blank")
+event_args.add_argument('init_date', type=str, required=True, help="init_date id cannot be blank")
+event_args.add_argument('end_date', type=str, required=True, help="end_date id cannot be blank")
+event_args.add_argument('event_date', type=str, required=True, help="event_date id cannot be blank")
+event_args.add_argument('event_status', type=str)
+event_args.add_argument('event_evaluation', type=str)
+
+
+
 userFields = {
     'id':fields.Integer,
     'login':fields.String,
@@ -68,10 +81,12 @@ class SignUp(Resource):
 
 class UserLogin(Resource):
     @marshal_with(userFields)
-    def get(self):
+    def get(self, id):
         #todo create validation to find out user in the list
-        users = UserModel.query.all()
-        return users
+        user = UserModel.query.filter_by(id==id).first()
+        if not user:
+            abort(404,"User not found")
+        return user
     
 class AddNewEvent(Resource):
     def post(self):
@@ -95,7 +110,7 @@ class DeleteEvent(Resource):
 
 
 class EvaluateNewEvent(Resource):
-    def put(self):
+    def patch(self, id):
         #todo
         return
 
@@ -125,7 +140,7 @@ class SearchEvents(Resource):
         return
 
 api.add_resource(SignUp, '/signUp/')
-api.add_resource(UserLogin, '/login/')
+api.add_resource(UserLogin, '/login/<int:id>')
 api.add_resource(AddNewEvent, '/addnewevent/')
 api.add_resource(GetEvents, '/getevents/')
 api.add_resource(DeleteEvent, '/deleteevent/')
